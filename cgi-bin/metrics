@@ -166,6 +166,42 @@ function exposit_release_assets_metrics() {
         --value "${assets_count}" >&3
 }
 
+function exposit_traffic_clones_metrics() {
+    local today_date="$(date -u +'%Y-%m-%d')"
+    local today_ios8601="${today_date}T00:00:00Z"
+    local today_timestamp="$(date -d "${today_date}" +%s)000"
+    read clone_count clone_uniques < <(
+        curl_github "/repos/${GITHUB_REPO}/traffic/clones?per=day" | \
+            jq -rc ".clones | map(select(.timestamp == \"${today_ios8601}\")) | if length == 0 then [0, 0] else .[] | [.count // 0, .uniques // 0] end | @tsv"
+    ) || {
+        return 0
+    }
+    prom-exposit --name 'github_traffic_clones_count' --type 'gauge' --comment 'Github Traffic Clones count.' --label "repo=${GITHUB_REPO}" \
+        --timstamp "${today_timestamp}" \
+        --value "${clone_count}" >&3
+    prom-exposit --name 'github_traffic_clones_uniques' --type 'gauge' --comment 'Github Traffic Clones unique count.' --label "repo=${GITHUB_REPO}" \
+        --timstamp "${today_timestamp}" \
+        --value "${clone_uniques}" >&3
+}
+
+function exposit_traffic_views_metrics() {
+    local today_date="$(date -u +'%Y-%m-%d')"
+    local today_ios8601="${today_date}T00:00:00Z"
+    local today_timestamp="$(date -d "${today_date}" +%s)000"
+    read view_count view_uniques < <(
+        curl_github "/repos/${GITHUB_REPO}/traffic/views?per=day" | \
+            jq -rc ".views | map(select(.timestamp == \"${today_ios8601}\")) | if length == 0 then [0, 0] else .[] | [.count // 0, .uniques // 0] end | @tsv"
+    ) || {
+        return 0
+    }
+    prom-exposit --name 'github_traffic_views_count' --type 'gauge' --comment 'Github Traffic Views count.' --label "repo=${GITHUB_REPO}" \
+        --timstamp "${today_timestamp}" \
+        --value "${view_count}" >&3
+    prom-exposit --name 'github_traffic_views_uniques' --type 'gauge' --comment 'Github Traffic Views unique count.' --label "repo=${GITHUB_REPO}" \
+        --timstamp "${today_timestamp}" \
+        --value "${view_uniques}" >&3
+}
+
 function exposit_metrics() {
     check_required_executables jq curl
     check_required_env
@@ -178,6 +214,8 @@ function exposit_metrics() {
             echo 'Content-Type: text/plain; version=0.0.4'
             echo
             exposit_release_assets_metrics
+            exposit_traffic_clones_metrics
+            exposit_traffic_views_metrics
             ;;
         *)
             echo 'Status: 405 Method Not Allowed'
