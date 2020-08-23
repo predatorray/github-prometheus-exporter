@@ -59,11 +59,6 @@ function check_required_executables() {
     done
 }
 
-# TODO
-function prom-exposit() {
-    echo "prom-exposit" "$@"
-}
-
 function curl_github() {
     local path="$1"
 
@@ -177,10 +172,10 @@ function exposit_traffic_clones_metrics() {
         return 0
     }
     prom-exposit --name 'github_traffic_clones_count' --type 'gauge' --comment 'Github Traffic Clones count.' --label "repo=${GITHUB_REPO}" \
-        --timstamp "${today_timestamp}" \
+        --timestamp "${today_timestamp}" \
         --value "${clone_count}" >&3
     prom-exposit --name 'github_traffic_clones_uniques' --type 'gauge' --comment 'Github Traffic Clones unique count.' --label "repo=${GITHUB_REPO}" \
-        --timstamp "${today_timestamp}" \
+        --timestamp "${today_timestamp}" \
         --value "${clone_uniques}" >&3
 }
 
@@ -195,15 +190,15 @@ function exposit_traffic_views_metrics() {
         return 0
     }
     prom-exposit --name 'github_traffic_views_count' --type 'gauge' --comment 'Github Traffic Views count.' --label "repo=${GITHUB_REPO}" \
-        --timstamp "${today_timestamp}" \
+        --timestamp "${today_timestamp}" \
         --value "${view_count}" >&3
     prom-exposit --name 'github_traffic_views_uniques' --type 'gauge' --comment 'Github Traffic Views unique count.' --label "repo=${GITHUB_REPO}" \
-        --timstamp "${today_timestamp}" \
+        --timestamp "${today_timestamp}" \
         --value "${view_uniques}" >&3
 }
 
 function exposit_metrics() {
-    check_required_executables jq curl
+    check_required_executables jq curl prom-exposit
     check_required_env
     case "${REQUEST_METHOD:-GET}" in
         HEAD)

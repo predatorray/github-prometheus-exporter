@@ -22,5 +22,13 @@ FROM zetaplusae/lighttpd-cgi
 RUN set -ex && \
     apk add --no-cache jq curl
 
+RUN set -ex && \
+    wget -O /tmp/prom-exposit-1.0.tar.gz https://github.com/predatorray/prometheus-bash-exposition/releases/download/v1.0/prom-exposit-1.0.tar.gz && \
+    mkdir -p /usr/local/prom-exposit && cd /usr/local/prom-exposit && \
+    tar -zxf /tmp/prom-exposit-1.0.tar.gz && rm -f /tmp/prom-exposit-1.0.tar.gz && \
+    [ -f /usr/local/prom-exposit/bin/prom-exposit ] && chmod +x /usr/local/prom-exposit/bin/prom-exposit && \
+    ln -s /usr/local/prom-exposit/bin/prom-exposit /usr/local/bin/prom-exposit
+ENV PATH "$PATH:/usr/local/prom-exposit/bin"
+
 COPY env.conf /etc/lighttpd/conf.d/env.conf
 COPY cgi-bin/ /var/www/cgi-bin/
