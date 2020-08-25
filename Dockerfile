@@ -30,5 +30,5 @@ RUN set -ex && \
     ln -s /usr/local/prom-exposit/bin/prom-exposit /usr/local/bin/prom-exposit
 ENV PATH "$PATH:/usr/local/prom-exposit/bin"
 
-COPY env.conf /etc/lighttpd/conf.d/env.conf
+COPY env.conf.sh /etc/lighttpd/conf.d/env.conf.sh
 COPY cgi-bin/ /var/www/cgi-bin/
