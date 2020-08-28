@@ -23,30 +23,32 @@ set -euf -o pipefail
 
 function print_add_env() {
     local env_name="$1"
-    echo "    \"${env_name}\" => env.${env_name}"
+    echo "\"${env_name}\" => env.${env_name}"
 }
 
-cat << EOF
-server.modules += ( "mod_setenv" )
-setenv.add-environment = (
-EOF
-
+env_arr=()
 if [[ -n "${GITHUB_USER:-}" ]]; then
-    print_add_env 'GITHUB_USER'
+    env_arr+=("$(print_add_env 'GITHUB_USER')")
 fi
 
 if [[ -n "${GITHUB_ACCESS_TOKEN:-}" ]]; then
-    print_add_env 'GITHUB_ACCESS_TOKEN'
+    env_arr+=("$(print_add_env 'GITHUB_ACCESS_TOKEN')")
 fi
 
 if [[ -n "${GITHUB_REPO:-}" ]]; then
-    print_add_env 'GITHUB_REPO'
+    env_arr+=("$(print_add_env 'GITHUB_REPO')")
 fi
 
 if [[ -n "${GITHUB_API_SERVER:-}" ]]; then
-    print_add_env 'GITHUB_API_SERVER'
+    env_arr+=("$(print_add_env 'GITHUB_API_SERVER')")
 fi
 
-cat << EOF
-)
-EOF
+echo 'server.modules += ( "mod_setenv" )'
+
+env_count="${#env_arr[@]}"
+if [[ "${env_count}" -gt 0 ]]; then
+    printf -v env_str '%s,' "${env_arr[@]}"
+    echo 'setenv.add-environment = ('
+    echo "${env_str%,}"
+    echo ')'
+fi
