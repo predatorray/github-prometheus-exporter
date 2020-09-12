@@ -59,4 +59,16 @@ github_api_request_duration_seconds{http_status="200",path="/repos/<your-reposit
 
 ## Configuration
 
-Only the environment variable `GITHUB_REPO` is required, which is the name of your Github repository. (e.g. `predatorray/github-prometheus-exporter`)
+The only environment variable required is `GITHUB_REPO`, which is the name of your Github repository. (e.g. `predatorray/github-prometheus-exporter`)
+
+## Links
+
+This project is developed with the help of these two open-sourced project:
+
+ - [prometheus-bash-exposition](https://github.com/predatorray/prometheus-bash-exposition): a command line tool, written in Bash, that prints Prometheus exposition format file.
+
+ - [lighttpd-cgi-docker](https://github.com/predatorray/lighttpd-cgi-docker): an out-of-the-box lighttpd image for CGI scripts based HTTP server.
+
+## Support
+
+You can ask me anything about this project by [creating an issue](https://github.com/predatorray/github-prometheus-exporter/issues).
