@@ -42,14 +42,6 @@ function error() {
 
 function check_required_env() {
     # check required env variables
-    if [[ -z "${GITHUB_USER:-}" ]]; then
-        error "GITHUB_USER is unset."
-        exit 1
-    fi
-    if [[ -z "${GITHUB_ACCESS_TOKEN:-}" ]]; then
-        error "GITHUB_ACCESS_TOKEN is unset."
-        exit 1
-    fi
     if [[ -z "${GITHUB_REPO:-}" ]]; then
         error "GITHUB_REPO is unset."
         exit 1
@@ -99,7 +91,7 @@ function curl_github() {
 
     SECONDS=0
     local http_status
-    http_status="$(curl -s -u "${GITHUB_USER}:${GITHUB_ACCESS_TOKEN}" \
+    http_status="$(curl -s \
         -H "Accept: application/vnd.github.v3+json" \
         "${@:2}" \
         -w "%{http_code}" -o "${tmp_http_body}" \
@@ -208,42 +200,6 @@ function exposit_repo_stars() {
         --value "${stars}" >&3
 }
 
-function exposit_traffic_clones_metrics() {
-    local today_date="$(date -u +'%Y-%m-%d')"
-    local today_ios8601="${today_date}T00:00:00Z"
-    local today_timestamp="$(date -d "${today_date}" +%s)000"
-    read clone_count clone_uniques < <(
-        curl_github "/repos/${GITHUB_REPO}/traffic/clones?per=day" | \
-            jq -rc ".clones | map(select(.timestamp == \"${today_ios8601}\")) | if length == 0 then [0, 0] else .[] | [.count // 0, .uniques // 0] end | @tsv"
-    ) || {
-        return 0
-    }
-    prom-exposit --name 'github_traffic_clones_count' --type 'gauge' --comment 'Github Traffic Clones count.' --label "repo=${GITHUB_REPO}" \
-        --timestamp "${today_timestamp}" \
-        --value "${clone_count}" >&3
-    prom-exposit --name 'github_traffic_clones_uniques' --type 'gauge' --comment 'Github Traffic Clones unique count.' --label "repo=${GITHUB_REPO}" \
-        --timestamp "${today_timestamp}" \
-        --value "${clone_uniques}" >&3
-}
-
-function exposit_traffic_views_metrics() {
-    local today_date="$(date -u +'%Y-%m-%d')"
-    local today_ios8601="${today_date}T00:00:00Z"
-    local today_timestamp="$(date -d "${today_date}" +%s)000"
-    read view_count view_uniques < <(
-        curl_github "/repos/${GITHUB_REPO}/traffic/views?per=day" | \
-            jq -rc ".views | map(select(.timestamp == \"${today_ios8601}\")) | if length == 0 then [0, 0] else .[] | [.count // 0, .uniques // 0] end | @tsv"
-    ) || {
-        return 0
-    }
-    prom-exposit --name 'github_traffic_views_count' --type 'gauge' --comment 'Github Traffic Views count.' --label "repo=${GITHUB_REPO}" \
-        --timestamp "${today_timestamp}" \
-        --value "${view_count}" >&3
-    prom-exposit --name 'github_traffic_views_uniques' --type 'gauge' --comment 'Github Traffic Views unique count.' --label "repo=${GITHUB_REPO}" \
-        --timestamp "${today_timestamp}" \
-        --value "${view_uniques}" >&3
-}
-
 function exposit_api_requests() {
     readarray -t api_request_duration_gauge < "${api_request_duration_gauge_file}"
     "${api_request_duration_gauge[@]}" >&3
@@ -268,8 +224,6 @@ function exposit_metrics() {
             echo
             exposit_release_assets_metrics || true
             exposit_repo_stars || true
-            # exposit_traffic_clones_metrics
-            # exposit_traffic_views_metrics
             exposit_api_requests || true
             ;;
         *)

@@ -27,13 +27,6 @@ function print_add_env() {
 }
 
 env_arr=()
-if [[ -n "${GITHUB_USER:-}" ]]; then
-    env_arr+=("$(print_add_env 'GITHUB_USER')")
-fi
-
-if [[ -n "${GITHUB_ACCESS_TOKEN:-}" ]]; then
-    env_arr+=("$(print_add_env 'GITHUB_ACCESS_TOKEN')")
-fi
 
 if [[ -n "${GITHUB_REPO:-}" ]]; then
     env_arr+=("$(print_add_env 'GITHUB_REPO')")
