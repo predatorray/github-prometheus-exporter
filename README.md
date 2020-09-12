@@ -24,6 +24,9 @@ Metric Name | Help
 ## Example
 
 ```sh
+# <your-repository-name>
+# e.g. predatorray/github-prometheus-exporter
+
 docker run -d \
     -e GITHUB_REPO='<your-repository-name>' \
     -p 80:80 \
