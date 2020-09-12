@@ -25,7 +25,7 @@ Metric Name | Help
 
 ```sh
 docker run -d \
-    -e GITHUB_REPO='<your-repository-name>' \ # e.g. predatorray/github-prometheus-exporter
+    -e GITHUB_REPO='<your-repository-name>' \
     -p 80:80 \
     zetaplusae/github-prometheus-exporter
 ```
