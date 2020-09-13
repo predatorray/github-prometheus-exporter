@@ -36,6 +36,14 @@ if [[ -n "${GITHUB_API_SERVER:-}" ]]; then
     env_arr+=("$(print_add_env 'GITHUB_API_SERVER')")
 fi
 
+if [[ -n "${GITHUB_USER:-}" ]]; then
+    env_arr+=("$(print_add_env 'GITHUB_USER')")
+fi
+
+if [[ -n "${GITHUB_ACCESS_TOKEN:-}" ]]; then
+    env_arr+=("$(print_add_env 'GITHUB_ACCESS_TOKEN')")
+fi
+
 echo 'server.modules += ( "mod_setenv" )'
 
 env_count="${#env_arr[@]}"

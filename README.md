@@ -62,7 +62,29 @@ github_api_request_duration_seconds{http_status="200",path="/repos/<your-reposit
 
 ## Configuration
 
-The only environment variable required is `GITHUB_REPO`, which is the name of your Github repository. (e.g. `predatorray/github-prometheus-exporter`)
+This image relies on the following environment variables:
+
+
+Env Name                | Required | Help
+------------------------| -------- | ---
+`GITHUB_REPO`           | true     | The name of your Github repository.<br>(e.g. `predatorray/github-prometheus-exporter`)
+`GITHUB_API_SERVER`     | false    | The URL to the Github API Server.<br>(Default: `https://api.github.com`)
+`GITHUB_USER`           | false    | The Github user. (See the [Authentication](https://github.com/predatorray/github-prometheus-exporter/wiki/Authentication) Section)
+`GITHUB_ACCESS_TOKEN`   | false    | The Github access token of the user. (See the [Authentication](https://github.com/predatorray/github-prometheus-exporter/wiki/Authentication) Section)
+
+## Authentication
+
+### Why do we need authentication?
+
+Although currently we do not rely on any API that requires authentication, there is a rate limit when requesting the public Github API server.
+
+As stated in the [Github API doc](https://developer.github.com/v3/#rate-limiting),
+
+> For unauthenticated requests, the rate limit allows for up to 60 requests per hour.
+
+> For API requests using Basic Authentication or OAuth, you can make up to 5000 requests per hour.
+
+In other word, if you do not provide any authentication, you must set the value of `scrape_interval` to `2m` at least, since there will be two API calls per scrape.
 
 ## Links
 

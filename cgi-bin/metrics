@@ -87,11 +87,16 @@ EOF
 function curl_github() {
     local path="$1"
 
+    local user_token_opts=''
+    if [[ -n "${GITHUB_USER:-}" && -n "${GITHUB_ACCESS_TOKEN}" ]]; then
+        user_token_opts="-u ${GITHUB_USER}:${GITHUB_ACCESS_TOKEN}"
+    fi
+
     local tmp_http_body="$(tmpfile)"
 
     SECONDS=0
     local http_status
-    http_status="$(curl -s \
+    http_status="$(curl -s ${user_token_opts} \
         -H "Accept: application/vnd.github.v3+json" \
         "${@:2}" \
         -w "%{http_code}" -o "${tmp_http_body}" \
