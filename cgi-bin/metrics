@@ -199,8 +199,15 @@ function exposit_release_assets_metrics() {
 }
 
 function exposit_repo_stars() {
-    local stars
-    stars="$(curl_github "/repos/${GITHUB_REPO}/stargazers" | jq -rc 'length')"
+    local stars=0
+    for ((page=1; ; page++)); do
+        local partial
+        partial="$(curl_github "/repos/${GITHUB_REPO}/stargazers?page=${page}" | jq -rc 'length')"
+        if [[ "${partial}" -eq 0 ]]; then
+            break
+        fi
+        stars=$((stars + partial))
+    done
     prom-exposit --name 'github_repo_stars' --type 'counter' --comment 'Github Repository Stars' --label "repo=${GITHUB_REPO}" \
         --value "${stars}" >&3
 }
